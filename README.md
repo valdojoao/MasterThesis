@@ -34,7 +34,7 @@ Run:
 1. cmake CMakeLists.txt
 2. make
 3. Run the Program
-a. ./bin/FaceRec 0 0 to open the webcam
-b. ./bin/FaceRec 0 img/vid.mp4 to read from a video
+3.1 ./bin/FaceRec 0 0 to open the webcam
+3.2 ./bin/FaceRec 0 img/vid.mp4 to read from a video
 4. Press ESC to exit
 5. On the root folder of the project a file named TabularData.csv is created
