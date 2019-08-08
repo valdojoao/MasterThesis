@@ -1,4 +1,4 @@
-# MasterThesis: from 04/2016 to 10/2016
+# MasterThesis: 04/2016 - 10/2016
 
 The project was part of my Master Thesis, the main goal was to Parallelize an Image Processing
 Algorithms For Face Recognition on Multicore Platforms. The code attached refers to the sequential
@@ -34,7 +34,7 @@ Run:
 1. cmake CMakeLists.txt
 2. make
 3. Run the Program
-3.1 ./bin/FaceRec 0 0 to open the webcam
-3.2 ./bin/FaceRec 0 img/vid.mp4 to read from a video
+<br/>3.1 ./bin/FaceRec 0 0 to open the webcam
+<br/>3.2 ./bin/FaceRec 0 img/vid.mp4 to read from a video
 4. Press ESC to exit
 5. On the root folder of the project a file named TabularData.csv is created
