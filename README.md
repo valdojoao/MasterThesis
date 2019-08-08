@@ -1,4 +1,4 @@
-# MasterThesis: 04/2016 - 10/2016
+# Master Thesis: 04/2016 - 10/2016
 
 The project was part of my Master Thesis, the main goal was to Parallelize an Image Processing
 Algorithms For Face Recognition on Multicore Platforms. The code attached refers to the sequential
