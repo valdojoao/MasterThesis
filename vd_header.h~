@@ -1,0 +1,73 @@
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/video/video.hpp>
+#include <opencv/cv.h>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "opencv2/video/tracking.hpp"
+#include <iostream>
+#include <stdio.h>
+#include <time.h>
+#include <exception>
+#include <omp.h>
+#include <opencv2/core/ocl.hpp>
+
+#include <ff/pipeline.hpp>
+#include <ff/farm.hpp>
+#include <ff/parallel_for.hpp>
+
+
+using namespace cv;
+using namespace std;
+using namespace ff; 
+
+double min_face_size 	= 30; 		
+int max_num_faces	= 1;			//initially the max number of faces is equal to one
+int bright_contrats	= 0;
+bool 	isClahe = false;
+
+//Variables to track the face once detected
+bool 	track_face[14];
+bool 	selectObject[14];
+int 	timer[14];
+int 	trackObject[14];
+int 	sleeptime[14];
+Rect 	selection[14];
+bool 	isFrameImage = false;
+int vmin = 10, vmax = 100, smin = 30;
+
+
+/** Function Headers */
+void	detectAndDisplay(UMat frame);
+int 	loadCascades();
+bool 	detectRightEye(vector<Rect> faces, vector<Rect> rEyes, vector<Rect> rClosedEyes, UMat frame, UMat frame_gray, int i);
+bool 	detectLeftEye(vector<Rect> faces, vector<Rect> lEyes, vector<Rect> lClosedEyes, UMat frame, UMat frame_gray, int i);
+bool 	detectMouth(vector<Rect> faces, vector<Rect> mouth, UMat frame, UMat frame_gray,int i);
+bool 	detectNose(vector<Rect> faces, vector<Rect> nose, UMat frame, UMat frame_gray,int i);
+void 	showFeatures(vector<Rect> feature, UMat frame, Rect featureROI, int k, int r, int g, int b); 
+void 	showFace(vector<Rect> faces, UMat frame, int i);
+int 	track(UMat frame, UMat frame_gray, int trackObject, Rect selection, int index);
+bool 	computeFeature(int i, vector<Rect> f, vector<Rect> re, vector<Rect> rc, vector<Rect> le,   
+                        vector<Rect> lc, vector<Rect> m, vector<Rect> n, UMat fr, UMat frgr, int j);
+timespec diff(timespec start, timespec end);
+
+
+/** Global variables */
+String face_cascade_name 	= "haarcascade/haarcascade_frontalface_alt.xml";	// get location of face cascade
+String mouth_cascade_name 	= "haarcascade/haarcascade_mcs_mouth.xml";		// get location of mouth cascade
+String nose_cascade_name 	= "haarcascade/haarcascade_mcs_nose.xml";		// get location of nose cascade
+String rEyes_cascade_name 	= "haarcascade/haarcascade_righteye_2splits.xml";	// get location of left eye cascade
+String lEyes_cascade_name 	= "haarcascade/haarcascade_lefteye_2splits.xml";	// get location of left eye cascade
+String eyesCld_cascade_name 	= "haarcascade/haarcascade_righteye_2splits.xml";	// get location of closed eye cascade
+
+
+/** Classifiers */
+CascadeClassifier face_cascade;
+CascadeClassifier mouth_cascade;
+CascadeClassifier nose_cascade;
+CascadeClassifier rEyes_cascade;
+CascadeClassifier lEyes_cascade;
+CascadeClassifier eyesCld_cascade;
+

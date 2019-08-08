@@ -1,0 +1,128 @@
+#include "vd_header.h"
+#include "vd_util.h"
+
+/************************************************************************
+ * CamShift is a tracking algorithm which includes three steps:		*
+ * 1. Back Projection							* 
+ * 2. meanShift 							*
+ * 3. Track								*
+ ***********************************************************************/
+
+int track(UMat frame, UMat frame_gray, int trackObject, Rect selection, int k){
+
+	Rect trackWindow;
+	int hsize = 16;
+	float hranges[] = {0,180};
+	const float* phranges = hranges;
+	vector<Rect> faces(1);
+
+	Mat image, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
+	bool paused = false;
+
+	frame.copyTo(image);
+
+	if(!paused)
+	{
+		cvtColor(image, hsv, CV_BGR2HSV);
+		if(trackObject)
+		{ 
+
+			/****************************************************************************************************************
+			 * 1 Back Projection uses the histogram of image to show the probabilities of colors may appear in each pixel	*
+			 * First transform the picture space to HSV space 								* 
+			 * Secondly split the H channel out, as a single grayscale image, and get its histogram, and normalize it. 	*
+			 * Thirdly use “calcBackProject()” function to calculate the back projection of the image			*
+			 ***************************************************************************************************************/
+
+			int _vmin = vmin, _vmax = vmax;
+			inRange(hsv, Scalar(0, smin, MIN(_vmin,_vmax)),
+					Scalar(180, 256, MAX(_vmin, _vmax)), mask);
+
+			int ch[] = {0, 0};
+			hue.create(hsv.size(), hsv.depth());
+			mixChannels(&hsv, 1, &hue, 1, ch, 1);
+
+			if(trackObject < 0)
+			{	
+				Mat roi(hue, selection), maskroi(mask, selection);
+				calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+				normalize(hist, hist, 0, 255, CV_MINMAX);
+				trackWindow = selection;			
+				histimg = Scalar::all(0);
+				int binW = histimg.cols / hsize;
+				Mat buf(1, hsize, CV_8UC3);
+
+				for( int i = 0; i < hsize; i++ )
+					buf.at<Vec3b>(i) = Vec3b(saturate_cast<uchar>(i*180./hsize), 255, 255);
+
+				cvtColor(buf, buf, CV_HSV2BGR);
+
+				for( int i = 0; i < hsize; i++ )
+				{
+					int val = saturate_cast<int>(hist.at<float>(i)*histimg.rows/255);
+					rectangle( histimg, Point(i*binW,histimg.rows),
+							Point((i+1)*binW,histimg.rows - val),
+							Scalar(buf.at<Vec3b>(i)), -1, 8 );
+				}
+			}
+			calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
+			backproj &= mask;
+
+			/* 2 Apply meanshift to get the new location and Setup the termination criteria */
+			RotatedRect trackBox = CamShift(backproj, trackWindow,
+					TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+
+
+			/* 3 Track frames captured, the initial window of each frame is the output window of the prior frame.*/
+			if( trackWindow.area() <= 1 )
+			{
+				int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
+				trackWindow = Rect(trackWindow.x - r, trackWindow.y - r,
+						trackWindow.x + r, trackWindow.y + r) &
+						Rect(0, 0, cols, rows);
+			}
+
+			//show tracked face
+			Point pt1(trackWindow.x, trackWindow.y-trackWindow.height/2.5);
+			Point pt2(pt1.x + trackWindow.width + trackWindow.width/2.5, pt1.y + trackWindow.height + trackWindow.height/5.4);
+			rectangle(frame, pt1, pt2, Scalar(150,150,255), 2, 8, 0); 
+
+			try
+			{
+				
+				faces[0].x 	= trackWindow.x;
+				faces[0].y 	= trackWindow.y-trackWindow.height/2.5;
+				faces[0].width 	= trackWindow.width + trackWindow.width/2.5;
+				faces[0].height	= trackWindow.height + trackWindow.height/5.4;	
+
+				vector<Rect> eyes, lEyes, rEyes, lClosedEyes, rClosedEyes, mouth, nose;	
+
+				//detect features of the tracked face
+			 
+                                bool boolFeature [4] = {false, false, false, false};
+
+                                #pragma omp parallel for num_threads(4) // schedule(dynamic,1)
+                                for(int j = 0; j < 4; j++){
+
+                                boolFeature [j] = computeFeature(j, faces, rEyes, rClosedEyes, lEyes, lClosedEyes,
+                                                                         mouth, nose, frame, frame_gray, k);
+
+                                }
+
+				
+				if(boolFeature[0] || boolFeature[1] || boolFeature[2] || boolFeature[3]) timer[k] = 0;			
+				else timer[k]++;
+	
+				//if no feature is found for a certain time disable face tracking, face will have to be detected again
+				if(timer[k] > 25) track_face[k] = false; 
+				
+				//if(sleeptime[k] > 50) printf ("Sleeping \n");
+				//else printf ("awake \n");
+			}
+			catch (exception& e){}
+		}
+	}
+	else if( trackObject < 0 )
+		paused = false;
+}
+
