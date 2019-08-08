@@ -1,3 +1,0 @@
-/home/joao/Desktop/Joao_Redesign/CMakeFiles/rebuild_cache.dir
-/home/joao/Desktop/Joao_Redesign/CMakeFiles/FaceRec.dir
-/home/joao/Desktop/Joao_Redesign/CMakeFiles/edit_cache.dir
