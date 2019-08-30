@@ -23,7 +23,7 @@ while is still able to, otherwise switch to detection and start again.
 7. Write the results to csv TabularData.csv
 
 ## Milestones 
-The implemented algorithm was able to the Viola-Jones weakness such as: 
+The implemented algorithm was able to overcome the Viola-Jones weakness such as: 
 <br> Unable to detect faces that are rotated to a certain degree  
  Fail when the faces are very dark while the background is relatively light 
 <br> Fail on significantly occluded faces, if the eyes are occluded, the detector fails  
