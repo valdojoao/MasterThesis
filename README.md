@@ -29,7 +29,7 @@ The implemented algorithm was able to overcome the Viola-Jones weakness such as:
 <br> Failure on significantly occluded faces, if the eyes are occluded, the detector fails  
  
 Other important milestones of my thesis were:<br>
-a) Development of an algorithm able to determine the best histogram equalization function to apply on each specific scenario.<br> 
+a) Development of an algorithm able to determine the best histogram equalization to apply on each specific scenario.<br> 
 b) Optimization of OpenCV object detect function<br> 
 c) Improvement of OpenCV parallel implementation<br>
 d) Detailed study on the reasons why the Viola-Jones Algorithm may not allow multi-core platforms (CPUs and GPUs) to be exploited at their full capacity and propose solutions able to solve this issue.  
