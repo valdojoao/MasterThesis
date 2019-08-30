@@ -22,6 +22,17 @@ while is still able to, otherwise switch to detection and start again.
 6. Display the results
 7. Write the results to csv TabularData.csv
 
+## Milestones 
+The implemented algorithm was able to the Viola-Jones weakness such as: 
+<br> Unable to detect faces that are rotated to a certain degree  
+ Fail when the faces are very dark while the background is relatively light 
+<br> Fail on significantly occluded faces, if the eyes are occluded, the detector fails  
+ 
+Other important milestones of my thesis were:<br>
+a) Development of an algorithm able to determine the best histogram equalization function to apply on each specific scenario.<br> 
+b) Optimization of OpenCV object detect function<br> 
+c) Improvement of OpenCV parallel implementation<br>
+d) Detailed study on the reasons why the Viola-Jones Algorithm may not allow multi-core platforms (CPUs and GPUs) to be exploited at their full capacity and propose solutions able to solve this issue.  
 
 ## Requirements
 OpenCV 3.1: https://docs.opencv.org/3.3.1/d7/d9f/tutorial_linux_install.html
